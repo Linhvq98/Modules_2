@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/fluent-hc-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpclient-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpclient-cache-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpclient-osgi-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpclient-win-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/httpmime-4.5.8.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/java-json.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/jna-4.5.2.jar"/>
+	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/jna-platform-4.5.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
