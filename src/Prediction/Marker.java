@@ -293,7 +293,6 @@ public class Marker {
 			coordinate[i][1] = whereY;
 		}
 		
-		
 		return coordinate;
 		
 	}
