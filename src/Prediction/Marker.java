@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,10 +15,24 @@ import org.json.JSONObject;
 
 public class Marker {
 	private static final String url = "http://68.183.238.65:8000/api/data/markers";
-	private int id, record_user;
+	private int id, record_user, x_axis, y_axis;
 	private double lat, lng, speed, distance;
 	private String vehicle, direct, created_at, updated_at, record_time;
 	
+	
+	
+	public int getX_axis() {
+		return x_axis;
+	}
+	public void setX_axis(int x_axis) {
+		this.x_axis = x_axis;
+	}
+	public int getY_axis() {
+		return y_axis;
+	}
+	public void setY_axis(int y_axis) {
+		this.y_axis = y_axis;
+	}
 	public int getId() {
 		return id;
 	}
@@ -114,12 +130,32 @@ public class Marker {
 		this.record_time = record_time;
 	}
 	
+	// get date now 
+	public String getDate(Date d) {
+		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return ft.format(d).toString();
+	}
+	
+	//get date before m minute
+	public String getDate(Date d, int m) {
+		d = new Date(System.currentTimeMillis() - m*60*1000);
+		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return ft.format(d).toString();
+		
+	}
+	
 	public String getJSONDataString() {
 		StringBuffer response = new StringBuffer();
 		
 		try {
 			URL obj = new URL(Marker.getUrl());
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			
+			con.setRequestMethod("GET");
+			Date d = new Date();
+			// SELECT * FROM markers WHERE 'record_time' >= 'start_time' AND 'record_time' <= 'end_time'
+			con.setRequestProperty("start_time", getDate(d, 30)); // 30 min before
+			con.setRequestProperty("end_time", getDate(d)); // now
 			
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
@@ -212,12 +248,14 @@ public class Marker {
 				data[i].setRecord_time(aRecord.getString("record_time"));
 				data[i].setCreated_at(aRecord.getString("created_at"));
 				data[i].setUpdated_at(aRecord.getString("updated_at"));
+				data[i].setX_axis(i);
 			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return data;
 	}
+	
 	
 	public int[][] mapCell(double lat, double lng) {
 		Rectangle r = new Rectangle();
@@ -239,6 +277,18 @@ public class Marker {
 			int whereX = (int) Math.floor((lat - south) / (north - south) * height);
 			int whereY = (int) Math.floor((lng - west) / (east - west) * width);
 			//System.out.println( "in layer " + layer + " : Lat: " + lat + ", Lng: " + lng + " => whereX: " + whereX + ", whereY: " + whereY);
+			
+			if(whereX == height) {
+				whereX--;
+			} else if(whereX < 0 || whereX > height) {
+				whereX = -1;
+			}
+			if(whereY == width) {
+				whereY--;
+			} else if(whereY < 0 || whereY > width) {
+				whereY = -1;
+			}
+			
 			coordinate[i][0] = whereX;
 			coordinate[i][1] = whereY;
 		}
@@ -253,11 +303,13 @@ public class Marker {
 		//m.displayData();
 		
 		String jsonString = m.getJSONDataString();
+		System.out.println(jsonString);
 		int numberRecord = m.getNumberOfReCord(jsonString);
 		Marker[] data = new Marker[numberRecord];
 		data = m.createArrayData(numberRecord);
-		//m.displayARecord(data[0]);
-		//m.displayData();
+		m.displayARecord(data[0]);
+		m.displayData();
+		
 		m.mapCell(data[0].getLat(), data[0].getLng());
 		int [][]c = new int[5][2];
 		c = m.mapCell(data[0].getLat(), data[0].getLng());

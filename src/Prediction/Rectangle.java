@@ -131,6 +131,10 @@ public class Rectangle {
 		int numberRecord = r.getNumberOfReCord(jsonString);
 		Rectangle[] rectangles = new Rectangle[numberRecord];
 		rectangles = r.createArrayData(numberRecord);
+		r.displayARecord(rectangles[0]);
+		r.displayARecord(rectangles[1]);
+		r.displayARecord(rectangles[2]);
+		r.displayARecord(rectangles[3]);
 		r.displayARecord(rectangles[4]);
 		//m.displayData();
 	}
