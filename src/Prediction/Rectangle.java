@@ -57,6 +57,10 @@ public class Rectangle {
 		this.north = north;
 	}
 	
+	
+	
+	
+	
 	public String getJSONDataString() {
 		StringBuffer response = new StringBuffer();
 		

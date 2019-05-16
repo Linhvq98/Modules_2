@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/jna-4.5.2.jar"/>
 	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/jna-platform-4.5.2.jar"/>
 	<classpathentry kind="lib" path="D:/2-Java/Modules/libs/okhttp-4.0.0-alpha01.jar"/>
+	<classpathentry kind="lib" path="D:/12 - Laravel project/okhttp-4.0.0-alpha01.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

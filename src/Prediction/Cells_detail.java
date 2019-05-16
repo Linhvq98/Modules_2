@@ -1,9 +1,11 @@
 package Prediction;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.io.IOException;
 import java.util.Date;
-
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,39 +119,39 @@ public class Cells_detail {
 
 		Marker m = new Marker();
 		String jsonString = m.getJSONDataString();
-		int numberRecord = m.getNumberOfReCord(jsonString);
-		Marker[] marker = new Marker[numberRecord];
-		marker = m.createArrayData(numberRecord);
+		int numberRecord = m.getNumberOfReCord(jsonString) * 5;
+		Marker[] rawData = new Marker[numberRecord];
+		rawData = m.createArrayData(numberRecord);
 
 		switch (algorithm) {
-			case 0:{
-				indicator = useAlgorithm_example(marker, numberRecord);
-				break;
-			}
-			case 1:{
-				indicator = useAlgorithm_1(marker);
-				break;
-			}
-			case 2:{
-				indicator = useAlgorithm_2(marker);
-				break;
-			}
-			case 3:{
-				indicator = useAlgorithm_3(marker);
-				break;
-			}
-			case 4:{
-				indicator = useAlgorithm_4(marker);
-				break;
-			}
-			case 5:{
-				indicator = useAlgorithm_5(marker);
-				break;
-			}
-			default:{
-				break;
-			}
-			
+		case 0: {
+			indicator = useAlgorithm_example(rawData, numberRecord);
+			break;
+		}
+		case 1: {
+			indicator = useAlgorithm_1(rawData);
+			break;
+		}
+		case 2: {
+			indicator = useAlgorithm_2(rawData);
+			break;
+		}
+		case 3: {
+			indicator = useAlgorithm_3(rawData);
+			break;
+		}
+		case 4: {
+			indicator = useAlgorithm_4(rawData);
+			break;
+		}
+		case 5: {
+			indicator = useAlgorithm_5(rawData);
+			break;
+		}
+		default: {
+			break;
+		}
+
 		}
 
 		return indicator;
@@ -157,8 +159,7 @@ public class Cells_detail {
 
 	/*
 	 * The groups perform their algorithms here use data in 'rawData' array
-	 * 'rawData' array contains data: lat, lng, speed, distance, vehicle, direct,
-	 * record_time
+	 * 'rawData' array contains data: lat, lng, speed, distance, vehicle, direct, record_time
 	 */
 
 	// this is a example
@@ -168,11 +169,16 @@ public class Cells_detail {
 		// implement here
 		// algorithm example: use 'avg_speed' to determine 'indicator'
 		double totalSpeed = 0;
+		int recordOfLayer1 = 0;
 		for (int i = 0; i < numberRecord; i++) {
-			totalSpeed += rawData[i].getSpeed();
+			if (rawData[i].getLayer() == 1) {
+				totalSpeed += rawData[i].getSpeed();
+				recordOfLayer1++;
+			}
 		}
-		double avgSpeed = (double) totalSpeed / numberRecord;
+		double avgSpeed = (double) totalSpeed / recordOfLayer1;
 
+		System.out.println("avg_speed: " + avgSpeed);
 		if (avgSpeed < 1) {
 			indicator = 1;
 		} else if (avgSpeed >= 1 && avgSpeed < 3) {
@@ -253,7 +259,7 @@ public class Cells_detail {
 		JSONArray obj2 = new JSONArray();
 		JSONObject obj3 = new JSONObject();
 		try {
-			for(int i=0; i<numberRecord; i++) {
+			for (int i = 0; i < numberRecord; i++) {
 				obj.put("x_axis", new Integer(data[i].getX_axis()));
 				obj.put("y_axis", new Integer(data[i].getY_axis()));
 				obj.put("start_time", new String(data[i].getStart_time()));
@@ -274,73 +280,139 @@ public class Cells_detail {
 
 		return obj3.toString();
 	}
-	
-	// get date now 
-	public String getDate(Date d) {
-		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return ft.format(d).toString();
+
+	// done
+	public double calculateTotalSpeedOfACell(Marker rawData[], int numberRecord, int whereX, int whereY, int layer) {
+		int totalSpeed = 0;
+		for (int i = 0; i < numberRecord; i++) {
+			if (rawData[i].getLayer() == layer) {
+				if (rawData[i].getX_axis() == whereX && rawData[i].getY_axis() == whereY) {
+					totalSpeed += rawData[i].getSpeed();
+				}
+			}
+
+		}
+		return totalSpeed;
 	}
-	
-	//get date after m minute
-	public String getDate(Date d, int m) {
-		d = new Date(System.currentTimeMillis() + m*60*1000);
-		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return ft.format(d).toString();
-		
+
+	// done
+	public int calculateMarkerCountOfACell(Marker rawData[], int numberRecord, int whereX, int whereY, int layer) {
+		int totalRecord = 0;
+		for (int i = 0; i < numberRecord; i++) {
+			if (rawData[i].getLayer() == layer) {
+				if (rawData[i].getX_axis() == whereX && rawData[i].getY_axis() == whereY) {
+					totalRecord++;
+				}
+			}
+
+		}
+		return totalRecord;
 	}
-	
-	// chua viet
-	public double calculateTotalSpeedOfACell() {
-		return 0;
-	}
-	
-	// chua lam
-	public int calculateMarkerCount() {
-		return 1;
-	}
-	
+
 	// create array data cells detail
-	public Cells_detail[] createArrayCellsDetail() {
-		// 5 thuat toan
+	public Cells_detail[] createArrayCellsDetail(int recordData, Marker rawData[], int recordRawData, int algorithm) {
+		// voi 1 thuat toan
 		// 5 muc zoom: 6*13, 12*27, 24*54, 48*108, 96*216
-		// -> tong so cell la:
-		int numberRecord = 5 * (6*13 + 12*27 + 24*54 + 48*108 + 96*216); 
-		Cells_detail[] data = new Cells_detail[numberRecord];
-		
+		// -> tong so ban ghi cells_detail can tao ra tu 1 thuat toan la: 27618
+
+		Cells_detail[] data = new Cells_detail[recordData];
+
 		Cells_detail c = new Cells_detail();
-		for(int algorithm = 1; algorithm <=5; algorithm++) {
-			for(int i=0; i<numberRecord; i++) {
+
+		for (int i = 0; i < recordData;) {
+			for (int j = 0; j < recordRawData; j++) {
+
 				Date now = new Date();
-				
-				data[i].setX_axis(i); // whereX
-				data[i].setY_axis(i); // whereY
-				data[i].setStart_time(c.getDate(now)); // now -> done
-				data[i].setEnd_time(c.getDate(now, 30)); // after x minute (eg: 30 min) -> done
-				data[i].setId_cell(i); // layer
-				data[i].setAvg_speed(c.calculateTotalSpeedOfACell() / c.calculateMarkerCount()); // sum(speed in this cell) / number record of this cell
-				data[i].setMarker_count(c.calculateMarkerCount()); // number record of this cell
-				data[i].setIndicator(c.calculateIndicator(algorithm)); // calculator
-				data[i].setAlgorithm(algorithm); // belong to which team
-				data[i].setColor(c.mapColor(data[i].getIndicator())); // use indicator to determine
-			
+				FormatDate fd = new FormatDate();
+
+				data[i] = new Cells_detail();
+
+				int x = rawData[i].getX_axis();
+				int y = rawData[i].getY_axis();
+				int lay = rawData[i].getLayer();
+
+				// id_cell: layer ->done
+				data[i].setId_cell(lay);
+
+				// x_axis: whereX
+				data[i].setX_axis(x);
+
+				// y_axis: whereY
+				data[i].setY_axis(y);
+
+				// start_time: now() -> done
+				data[i].setStart_time(fd.getDate(now));
+
+				// end_time: after x minute (eg: 30 min) -> done
+				data[i].setEnd_time(fd.getDate(now, 30));
+
+				// avg_speed: sum(speed in this cell) / number record of this cell -> done
+				data[i].setAvg_speed(c.calculateTotalSpeedOfACell(rawData, recordRawData, x, y, lay)
+						/ c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
+
+				// marker_count: number record of this cell -> done
+				data[i].setMarker_count(c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
+
+				// indicator: calculator indicator -> done
+				data[i].setIndicator(c.calculateIndicator(algorithm));
+
+				// algorithm -> done
+				data[i].setAlgorithm(algorithm);
+
+				// color: use indicator to determine ->done
+				data[i].setColor(c.mapColor(data[i].getIndicator()));
+
+				i++;
 			}
 		}
-		
-		
+
 		return data;
 	}
 
-	public static void main(String[] args) {
+	// B4: gui chuoi json di
+	private static final String url = "http://68.183.238.65:8000/api/data/savedata";
+	private void sendResultJSON(String json) throws IOException {
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		try {
+		    HttpPost request = new HttpPost(url);
+		    StringEntity params = new StringEntity(json.toString());
+		    request.addHeader("content-type", "application/json");
+		    request.setEntity(params);
+		    httpClient.execute(request);
+		// handle response here...
+		} catch (Exception ex) {
+		    // handle exception here
+		} finally {
+		    httpClient.close();
+		}
+	}
+
+	public static void runProcess(int algorithm) throws IOException {
+		// B1: tao mang rawData (markers)
+		Marker m = new Marker();
+		String jsonString = m.getJSONDataString();
+		int recordRawData = m.getNumberOfReCord(jsonString) * 5;
+		Marker[] rawData = new Marker[recordRawData];
+		rawData = m.createArrayData(recordRawData);
+
+		// B2: tu mang rawData -> tao ra mang data (cellss_detail)
 		Cells_detail c = new Cells_detail();
-		/*
-		 * System.out.println("indicator use algorithm example: " +
-		 * c.calculateIndicator()[0]); System.out.println("color: " +
-		 * c.mapColor(c.calculateIndicator()[0]));
-		 */
-		/*int numberRecord = 5;
-		Cells_detail []data = new Cells_detail[numberRecord];
-		System.out.println(c.getResultJSON(data, numberRecord));*/
-		Date d = new Date();
-		System.out.println(c.getDate(d, 30));
+		int recordData = (6 * 13 + 12 * 27 + 24 * 54 + 48 * 108 + 96 * 216);
+		Cells_detail[] data = new Cells_detail[recordData];
+		data = c.createArrayCellsDetail(recordData, rawData, recordRawData, algorithm);
+
+		// B3: Convert mang data thanh chuoi json
+		String resultJSON = c.getResultJSON(data, recordData);
+		//System.out.println(resultJSON);
+		
+		// B4: gui chuoi json di
+		c.sendResultJSON(resultJSON);
+	}
+
+	public static void main(String[] args) throws IOException {
+		for(int i=1; i<=5; i++) {
+			Cells_detail.runProcess(i);
+		}
+		
 	}
 }
