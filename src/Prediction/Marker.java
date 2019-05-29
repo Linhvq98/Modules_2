@@ -246,9 +246,8 @@ public class Marker {
 		System.out.println("layer: " + aRecord.getLayer());
 	}
 
-	public Marker[] createArrayData(int numberRecord) {
-		String jsonString = this.getJSONDataString();
-
+	public Marker[] createArrayData(String jsonString, int numberRecord) {
+		
 		int root = numberRecord / 5;
 		//System.out.println("root: " + root);
 		//System.out.println("num: " + numberRecord);

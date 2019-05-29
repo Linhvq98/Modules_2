@@ -121,7 +121,7 @@ public class Cells_detail {
 		String jsonString = m.getJSONDataString();
 		int numberRecord = m.getNumberOfReCord(jsonString) * 5;
 		Marker[] rawData = new Marker[numberRecord];
-		rawData = m.createArrayData(numberRecord);
+		rawData = m.createArrayData(jsonString, numberRecord);
 
 		switch (algorithm) {
 		case 0: {
@@ -277,13 +277,13 @@ public class Cells_detail {
 
 		// just an example
 		if (indicator == 1) {
-			color = "#ffffff";
+			color = "#ffffff"; // white
 		} else if (indicator == 2) {
-			color = "#ff0000";
+			color = "#00ff00"; // red
 		} else if (indicator == 3) {
-			color = "#e1ff00";
+			color = "#e1ff00"; // yellow
 		} else {
-			color = "#00ff00";
+			color = "#ff0000"; // green
 		}
 
 		return color;
@@ -318,7 +318,7 @@ public class Cells_detail {
 	}
 
 	// done
-	public double calculateTotalSpeedOfACell(Marker rawData[], int , int whereX, int whereY, int layer) {
+	public double calculateTotalSpeedOfACell(Marker rawData[], int numberRecord, int whereX, int whereY, int layer) {
 		int totalSpeed = 0;
 		for (int i = 0; i < numberRecord; i++) {
 			if (rawData[i].getLayer() == layer) {
@@ -354,19 +354,22 @@ public class Cells_detail {
 		Cells_detail[] data = new Cells_detail[recordData];
 
 		Cells_detail c = new Cells_detail();
-
+		System.out.println("in create array cell detail");
+		System.out.println(algorithm);
+		
+		Date now = new Date();
+		FormatDate fd = new FormatDate();
+		
 		for (int i = 0; i < recordData;) {
 			for (int j = 0; j < recordRawData; j++) {
-
-				Date now = new Date();
-				FormatDate fd = new FormatDate();
-
 				data[i] = new Cells_detail();
 
 				int x = rawData[i].getX_axis();
 				int y = rawData[i].getY_axis();
 				int lay = rawData[i].getLayer();
 
+				System.out.println(x + " " + y + " " + lay);
+				
 				// id_cell: layer ->done
 				data[i].setId_cell(lay);
 
@@ -397,8 +400,10 @@ public class Cells_detail {
 
 				// color: use indicator to determine ->done
 				data[i].setColor(c.mapColor(data[i].getIndicator()));
-
+				
+				System.out.println(i);
 				i++;
+				
 			}
 		}
 
@@ -429,17 +434,20 @@ public class Cells_detail {
 		String jsonString = m.getJSONDataString();
 		int recordRawData = m.getNumberOfReCord(jsonString) * 5;
 		Marker[] rawData = new Marker[recordRawData];
-		rawData = m.createArrayData(recordRawData);
+		rawData = m.createArrayData(jsonString , recordRawData);
+		System.out.println("1");
 
 		// B2: tu mang rawData -> tao ra mang data (cellss_detail)
 		Cells_detail c = new Cells_detail();
 		int recordData = (6 * 13 + 12 * 27 + 24 * 54 + 48 * 108 + 96 * 216);
 		Cells_detail[] data = new Cells_detail[recordData];
 		data = c.createArrayCellsDetail(recordData, rawData, recordRawData, algorithm);
+		System.out.println("2");
 
 		// B3: Convert mang data thanh chuoi json
 		String resultJSON = c.getResultJSON(data, recordData);
-		//System.out.println(resultJSON);
+		System.out.println(resultJSON);
+		System.out.println("3");
 		
 		// B4: gui chuoi json di
 		c.sendResultJSON(resultJSON);
@@ -449,6 +457,6 @@ public class Cells_detail {
 		for(int i=1; i<=5; i++) {
 			Cells_detail.runProcess(i);
 		}
-		
+		//Cells_detail.runProcess(0);
 	}
 }
