@@ -157,17 +157,16 @@ public class Marker {
 
 	public String getJSONDataString() {
 		StringBuffer response = new StringBuffer();
-
+		HttpURLConnection con = null;
 		try {
 			URL obj = new URL(Marker.getUrl());
-			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con = (HttpURLConnection) obj.openConnection();
 
 			con.setRequestMethod("GET");
 			Date d = new Date();
 			FormatDate fd = new FormatDate();
 
-			// SELECT * FROM markers WHERE 'record_time' >= 'start_time' AND 'record_time'
-			// <= 'end_time'
+			// SELECT * FROM markers WHERE 'record_time' >= 'start_time' AND 'record_time' <= 'end_time'
 			con.setRequestProperty("start_time", fd.getDate(d, -30)); // 30 min before
 			con.setRequestProperty("end_time", fd.getDate(d)); // now
 
@@ -178,9 +177,11 @@ public class Marker {
 			}
 			in.close();
 		} catch (MalformedURLException e) {
-			System.out.println(e);
+			System.out.println("Error 1:"+e);
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("Error 2:"+e);
+		} finally {
+			con.disconnect();
 		}
 
 		return response.toString();
@@ -322,11 +323,12 @@ public class Marker {
 	}
 
 	public static void main(String[] args) throws JSONException {
-		/*Marker m = new Marker();
+		Marker m = new Marker();
 		// m.displayData();
 
 		String jsonString = m.getJSONDataString();
-
+		System.out.println(jsonString);
+		/*
 		int numberRecord = m.getNumberOfReCord(jsonString) * 5;
 		System.out.println(numberRecord / 5);
 		Marker[] data = new Marker[numberRecord];

@@ -10,11 +10,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Cells_detail {
+public class cells_detail_test {
 	private int x_axis, y_axis, id_cell, marker_count, algorithm;
 	private String start_time, end_time, color;
 	private double avg_speed, indicator;
-
+	public static int recordRawData;
+	public static Marker rawData[];
+	
 	public int getX_axis() {
 		return x_axis;
 	}
@@ -95,11 +97,19 @@ public class Cells_detail {
 		this.indicator = indicator;
 	}
 
-	public Cells_detail() {
+	public cells_detail_test() {
 		super();
+		recordRawData = 0;
+		try {
+			getFromMarkers();
+		} catch (Exception e) {
+			System.out.print("constructor error: "+e);
+		}
 	}
 
-	public Cells_detail(int x_axis, int y_axis, int id_cell, int marker_count, int algorithm, String start_time,
+	
+	
+	public cells_detail_test(int x_axis, int y_axis, int id_cell, int marker_count, int algorithm, String start_time,
 			String end_time, String color, double avg_speed, double indicator) {
 		super();
 		this.x_axis = x_axis;
@@ -145,7 +155,7 @@ public class Cells_detail {
 			break;
 		}
 		case 5: {
-			indicator = useAlgorithm_5(rawData, numberRecord);
+			indicator = useAlgorithm_5(rawData);
 			break;
 		}
 		default: {
@@ -178,7 +188,7 @@ public class Cells_detail {
 		}
 		double avgSpeed = (double) totalSpeed / recordOfLayer1;
 
-		System.out.println("avg_speed: " + avgSpeed);
+		//System.out.println("avg_speed: " + avgSpeed);
 		if (avgSpeed < 1) {
 			indicator = 1;
 		} else if (avgSpeed >= 1 && avgSpeed < 3) {
@@ -228,46 +238,10 @@ public class Cells_detail {
 	}
 
 	// team 5
-	private double useAlgorithm_5(Marker rawData[], int numberRecord) {
-		double indicator = 0;
-		double sumSpeed = 0, markerCount = 0, density = 0, coverage = 0;
-		int [] recordUser = new int[1000];
-		int totalDensity = 0;
-		//double maxDensity = ;
-		//double maxDensity = ;
+	private double useAlgorithm_5(Marker rawData[]) {
+		double indicator = 5;
 
-		for (int i = 0; i < numberRecord; i++) {
-			if (rawData[i].getLayer() == this.getId_cell()) {
-				if (rawData[i].getX_axis() == this.getX_axis() && rawData[i].getY_axis() == this.getY_axis()) {
-					int check=0;
-					for(int j=0; j < totalDensity; i++){
-						if(rawData[i].getRecord_user()==recordUser[j]){
-							check=1;
-							break;
-						}
-					}
-					if(check==0){
-						recordUser[totalDensity]=rawData[i].getRecord_user();
-						totalDensity++;
-					}
-					markerCount++;
-					sumSpeed += rawData[i].getSpeed();
-				}
-			}
-		}
-
-		this.setAvg_speed(sumSpeed/markerCount);
-		//coverage = (density/maxDensity)*100;
-
-		if(this.getAvg_speed()>30){  //if(coverage<40||this.getAvg_speed()>30){
-			indicator = 4;
-		} else if(20<this.getAvg_speed()&&this.getAvg_speed()<=30){
-			indicator = 3;
-		} else if(10<this.getAvg_speed()&&this.getAvg_speed()<=20) {
-			indicator = 2;
-		} else {
-			indicator = 1;
-		}
+		// implement here
 
 		return indicator;
 	}
@@ -290,7 +264,7 @@ public class Cells_detail {
 	}
 
 	// convert array cells detail to JSON
-	public String getResultJSON(Cells_detail data[], int numberRecord) {
+	public String getResultJSON(cells_detail_test data[], int numberRecord) {
 		JSONObject obj = new JSONObject();
 		JSONArray obj2 = new JSONArray();
 		JSONObject obj3 = new JSONObject();
@@ -318,7 +292,7 @@ public class Cells_detail {
 	}
 
 	// done
-	public double calculateTotalSpeedOfACell(Marker rawData[], int , int whereX, int whereY, int layer) {
+	public double calculateTotalSpeedOfACell(Marker rawData[], int numberRecord, int whereX, int whereY, int layer) {
 		int totalSpeed = 0;
 		for (int i = 0; i < numberRecord; i++) {
 			if (rawData[i].getLayer() == layer) {
@@ -346,14 +320,14 @@ public class Cells_detail {
 	}
 
 	// create array data cells detail
-	public Cells_detail[] createArrayCellsDetail(int recordData, Marker rawData[], int recordRawData, int algorithm) {
+	public cells_detail_test[] createArrayCellsDetail(int recordData, Marker rawData[], int recordRawData, int algorithm) {
 		// voi 1 thuat toan
 		// 5 muc zoom: 6*13, 12*27, 24*54, 48*108, 96*216
-		// -> tong so ban ghi cells_detail can tao ra tu 1 thuat toan la: 27618
+		// -> tong so ban ghi cells_detail_test can tao ra tu 1 thuat toan la: 27618
 
-		Cells_detail[] data = new Cells_detail[recordData];
+		cells_detail_test[] data = new cells_detail_test[recordData];
 
-		Cells_detail c = new Cells_detail();
+		cells_detail_test c = new cells_detail_test();
 
 		for (int i = 0; i < recordData;) {
 			for (int j = 0; j < recordRawData; j++) {
@@ -361,7 +335,7 @@ public class Cells_detail {
 				Date now = new Date();
 				FormatDate fd = new FormatDate();
 
-				data[i] = new Cells_detail();
+				data[i] = new cells_detail_test();
 
 				int x = rawData[i].getX_axis();
 				int y = rawData[i].getY_axis();
@@ -423,32 +397,50 @@ public class Cells_detail {
 		}
 	}
 
-	public static void runProcess(int algorithm) throws IOException {
+	
+	
+	public void runProcess(int algorithm) throws IOException {
 		// B1: tao mang rawData (markers)
-		Marker m = new Marker();
-		String jsonString = m.getJSONDataString();
-		int recordRawData = m.getNumberOfReCord(jsonString) * 5;
-		Marker[] rawData = new Marker[recordRawData];
-		rawData = m.createArrayData(recordRawData);
-
-		// B2: tu mang rawData -> tao ra mang data (cellss_detail)
-		Cells_detail c = new Cells_detail();
+		System.out.println("step 1");
+		System.out.println(recordRawData+" "+algorithm);
+		cells_detail_test c = new cells_detail_test();
+		System.out.println("step 2");
 		int recordData = (6 * 13 + 12 * 27 + 24 * 54 + 48 * 108 + 96 * 216);
-		Cells_detail[] data = new Cells_detail[recordData];
+		System.out.println("step 3");
+		cells_detail_test[] data = new cells_detail_test[recordData];
+		System.out.println("step 4");
 		data = c.createArrayCellsDetail(recordData, rawData, recordRawData, algorithm);
 
 		// B3: Convert mang data thanh chuoi json
+		System.out.println("step 5");
+		
 		String resultJSON = c.getResultJSON(data, recordData);
-		//System.out.println(resultJSON);
+		
+		System.out.println(resultJSON);
 		
 		// B4: gui chuoi json di
-		c.sendResultJSON(resultJSON);
+		//c.sendResultJSON(resultJSON);
 	}
-
-	public static void main(String[] args) throws IOException {
-		for(int i=1; i<=5; i++) {
-			Cells_detail.runProcess(i);
+	private void getFromMarkers() throws IOException {
+		Marker m = new Marker();
+		if(recordRawData == 0) {
+			String jsonString = m.getJSONDataString();//
+			//System.out.println(jsonString);
+			this.recordRawData = m.getNumberOfReCord(jsonString)*5;// => 
+			System.out.println(recordRawData);
+			rawData = new Marker[recordRawData];
+			rawData = m.createArrayData(recordRawData);
 		}
+	}
+	public static void main(String[] args) throws IOException {
+		cells_detail_test a = new cells_detail_test();
 		
+		//a.runProcess();
+//		System.out.print(cells_detail_test.recordRawData);
+//		cells_detail_test.runProcess(0);
+		for(int i=1; i<=5; i++) {
+			a.runProcess(i);
+		}
+		//cells_detail_test.runProcess(0);
 	}
 }
