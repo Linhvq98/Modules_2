@@ -275,15 +275,25 @@ public class Cells_detail {
 	public String mapColor(double indicator) {
 		String color = "";
 
-		// just an example
-		if (indicator == 1) {
-			color = "#ffffff"; // white
-		} else if (indicator == 2) {
-			color = "#00ff00"; // red
-		} else if (indicator == 3) {
-			color = "#e1ff00"; // yellow
-		} else {
-			color = "#ff0000"; // green
+		switch ((int)indicator) {
+		case 1:
+			color = "#808080";
+			break;
+		case 2:
+			color = "#0000ff";
+			break;
+		case 3:
+			color = "#00ff00";
+			break;
+		case 4:
+			color = "#ffff00";
+			break;
+		case 5:
+			color = "#ff0000";
+			break;
+		default:
+			color = "#808080";
+			break;
 		}
 
 		return color;
