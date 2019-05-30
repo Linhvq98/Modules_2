@@ -455,9 +455,9 @@ public class Cells_detail {
 	}
 
 	public static void main(String[] args) throws IOException {
-		/*for(int i=1; i<=5; i++) {
+		for(int i=1; i<=5; i++) {
 			Cells_detail.runProcess(i);
-		}*/
-		Cells_detail.runProcess(0);
+		}
+		//Cells_detail.runProcess(0);
 	}
 }
