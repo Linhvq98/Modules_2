@@ -355,7 +355,7 @@ public class Cells_detail {
 
 		Cells_detail c = new Cells_detail();
 		System.out.println("in create array cell detail");
-		System.out.println(algorithm);
+		System.out.println(recordRawData);
 		
 		Date now = new Date();
 		FormatDate fd = new FormatDate();
@@ -432,6 +432,7 @@ public class Cells_detail {
 		// B1: tao mang rawData (markers)
 		Marker m = new Marker();
 		String jsonString = m.getJSONDataString();
+		System.out.println(jsonString);
 		int recordRawData = m.getNumberOfReCord(jsonString) * 5;
 		Marker[] rawData = new Marker[recordRawData];
 		rawData = m.createArrayData(jsonString , recordRawData);
@@ -454,9 +455,9 @@ public class Cells_detail {
 	}
 
 	public static void main(String[] args) throws IOException {
-		for(int i=1; i<=5; i++) {
+		/*for(int i=1; i<=5; i++) {
 			Cells_detail.runProcess(i);
-		}
-		//Cells_detail.runProcess(0);
+		}*/
+		Cells_detail.runProcess(0);
 	}
 }
