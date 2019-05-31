@@ -167,7 +167,7 @@ public class Marker {
 			FormatDate fd = new FormatDate();
 
 			// SELECT * FROM markers WHERE 'record_time' >= 'start_time' AND 'record_time' <= 'end_time'
-			con.setRequestProperty("start_time", fd.getDate(d, -30)); // 30 min before
+			con.setRequestProperty("start_time", fd.getDate(d, -100)); // 30 min before
 			con.setRequestProperty("end_time", fd.getDate(d)); // now
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

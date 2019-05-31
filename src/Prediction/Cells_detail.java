@@ -114,11 +114,11 @@ public class Cells_detail {
 		this.indicator = indicator;
 	}
 
-	public double calculateIndicator(int algorithm) {
+	public double calculateIndicator(String jsonString, int algorithm) {
 		double indicator = 0;
 
 		Marker m = new Marker();
-		String jsonString = m.getJSONDataString();
+		// String jsonString = m.getJSONDataString();
 		int numberRecord = m.getNumberOfReCord(jsonString) * 5;
 		Marker[] rawData = new Marker[numberRecord];
 		rawData = m.createArrayData(jsonString, numberRecord);
@@ -159,7 +159,8 @@ public class Cells_detail {
 
 	/*
 	 * The groups perform their algorithms here use data in 'rawData' array
-	 * 'rawData' array contains data: lat, lng, speed, distance, vehicle, direct, record_time
+	 * 'rawData' array contains data: lat, lng, speed, distance, vehicle, direct,
+	 * record_time
 	 */
 
 	// this is a example
@@ -231,23 +232,23 @@ public class Cells_detail {
 	private double useAlgorithm_5(Marker rawData[], int numberRecord) {
 		double indicator = 0;
 		double sumSpeed = 0, markerCount = 0, density = 0, coverage = 0;
-		int [] recordUser = new int[1000];
+		int[] recordUser = new int[1000];
 		int totalDensity = 0;
-		//double maxDensity = ;
-		//double maxDensity = ;
+		// double maxDensity = ;
+		// double maxDensity = ;
 
 		for (int i = 0; i < numberRecord; i++) {
 			if (rawData[i].getLayer() == this.getId_cell()) {
 				if (rawData[i].getX_axis() == this.getX_axis() && rawData[i].getY_axis() == this.getY_axis()) {
-					int check=0;
-					for(int j=0; j < totalDensity; i++){
-						if(rawData[i].getRecord_user()==recordUser[j]){
-							check=1;
+					int check = 0;
+					for (int j = 0; j < totalDensity; i++) {
+						if (rawData[i].getRecord_user() == recordUser[j]) {
+							check = 1;
 							break;
 						}
 					}
-					if(check==0){
-						recordUser[totalDensity]=rawData[i].getRecord_user();
+					if (check == 0) {
+						recordUser[totalDensity] = rawData[i].getRecord_user();
 						totalDensity++;
 					}
 					markerCount++;
@@ -256,14 +257,14 @@ public class Cells_detail {
 			}
 		}
 
-		this.setAvg_speed(sumSpeed/markerCount);
-		//coverage = (density/maxDensity)*100;
+		this.setAvg_speed(sumSpeed / markerCount);
+		// coverage = (density/maxDensity)*100;
 
-		if(this.getAvg_speed()>30){  //if(coverage<40||this.getAvg_speed()>30){
+		if (this.getAvg_speed() > 30) { // if(coverage<40||this.getAvg_speed()>30){
 			indicator = 4;
-		} else if(20<this.getAvg_speed()&&this.getAvg_speed()<=30){
+		} else if (20 < this.getAvg_speed() && this.getAvg_speed() <= 30) {
 			indicator = 3;
-		} else if(10<this.getAvg_speed()&&this.getAvg_speed()<=20) {
+		} else if (10 < this.getAvg_speed() && this.getAvg_speed() <= 20) {
 			indicator = 2;
 		} else {
 			indicator = 1;
@@ -275,22 +276,21 @@ public class Cells_detail {
 	public String mapColor(double indicator) {
 		String color = "";
 
-		switch ((int)indicator) {
+		switch ((int) indicator) {
 		case 1:
-			color = "#808080";
+			//color = "#808080";
+			color = "#FF0000"; // test
 			break;
 		case 2:
-			color = "#0000ff";
+			color = "#FFFF00";
 			break;
 		case 3:
-			color = "#00ff00";
+			color = "#00FF00";
 			break;
 		case 4:
-			color = "#ffff00";
+			color = "#0000FF";
 			break;
-		case 5:
-			color = "#ff0000";
-			break;
+		
 		default:
 			color = "#808080";
 			break;
@@ -356,85 +356,102 @@ public class Cells_detail {
 	}
 
 	// create array data cells detail
-	public Cells_detail[] createArrayCellsDetail(int recordData, Marker rawData[], int recordRawData, int algorithm) {
+	public Cells_detail[] createArrayCellsDetail(int recordData, Marker rawData[], int recordRawData, int algorithm,
+			String jsonString) {
 		// voi 1 thuat toan
 		// 5 muc zoom: 6*13, 12*27, 24*54, 48*108, 96*216
 		// -> tong so ban ghi cells_detail can tao ra tu 1 thuat toan la: 27618
+		Cells_detail[] data = null;
+		if (recordRawData != 0) {
 
-		Cells_detail[] data = new Cells_detail[recordData];
+			//Cells_detail[] data = new Cells_detail[recordData];
 
-		Cells_detail c = new Cells_detail();
-		System.out.println("in create array cell detail");
-		System.out.println(recordRawData);
-		
-		Date now = new Date();
-		FormatDate fd = new FormatDate();
-		
-		for (int i = 0; i < recordData;) {
-			for (int j = 0; j < recordRawData; j++) {
-				data[i] = new Cells_detail();
+			data = new Cells_detail[recordData];
+			
+			Cells_detail c = new Cells_detail();
+			System.out.println("in create array cell detail");
+			System.out.println("number record raw data: " + recordRawData);
+			System.out.println("recordData = " + recordData); // 27618
+			System.out.println("recordRawData = " + recordRawData);
+			Date now = new Date();
+			FormatDate fd = new FormatDate();
 
-				int x = rawData[i].getX_axis();
-				int y = rawData[i].getY_axis();
-				int lay = rawData[i].getLayer();
-
-				System.out.println(x + " " + y + " " + lay);
+			for (int i = 0; i < recordData - 1;) {
 				
-				// id_cell: layer ->done
-				data[i].setId_cell(lay);
+				for (int j = 0; j < recordRawData; j++) {
+					
+					
+					data[i] = new Cells_detail();
 
-				// x_axis: whereX
-				data[i].setX_axis(x);
+					int x = rawData[j].getX_axis();
+					int y = rawData[j].getY_axis();
+					int lay = rawData[j].getLayer();
 
-				// y_axis: whereY
-				data[i].setY_axis(y);
+					//System.out.println("whereX = " + x + ", whereY = " + y + ", layer = " + lay);
 
-				// start_time: now() -> done
-				data[i].setStart_time(fd.getDate(now));
+					// id_cell: layer ->done
+					data[i].setId_cell(lay);
 
-				// end_time: after x minute (eg: 30 min) -> done
-				data[i].setEnd_time(fd.getDate(now, 30));
+					// x_axis: whereX
+					data[i].setX_axis(x);
 
-				// avg_speed: sum(speed in this cell) / number record of this cell -> done
-				data[i].setAvg_speed(c.calculateTotalSpeedOfACell(rawData, recordRawData, x, y, lay)
-						/ c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
+					// y_axis: whereY
+					data[i].setY_axis(y);
 
-				// marker_count: number record of this cell -> done
-				data[i].setMarker_count(c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
+					// start_time: now() -> done
+					data[i].setStart_time(fd.getDate(now));
 
-				// indicator: calculator indicator -> done
-				data[i].setIndicator(c.calculateIndicator(algorithm));
+					// end_time: after x minute (eg: 30 min) -> done
+					data[i].setEnd_time(fd.getDate(now, 30));
 
-				// algorithm -> done
-				data[i].setAlgorithm(algorithm);
+					// avg_speed: sum(speed in this cell) / number record of this cell -> done
+					data[i].setAvg_speed(c.calculateTotalSpeedOfACell(rawData, recordRawData, x, y, lay)
+							/ c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
 
-				// color: use indicator to determine ->done
-				data[i].setColor(c.mapColor(data[i].getIndicator()));
-				
-				System.out.println(i);
-				i++;
-				
+					// marker_count: number record of this cell -> done
+					data[i].setMarker_count(c.calculateMarkerCountOfACell(rawData, recordRawData, x, y, lay));
+
+					// indicator: calculator indicator -> done
+					data[i].setIndicator(c.calculateIndicator(jsonString, algorithm));
+					//System.out.println("indicator = " + data[i].getIndicator());
+					// algorithm -> done
+					data[i].setAlgorithm(algorithm);
+
+					// color: use indicator to determine ->done
+					data[i].setColor(c.mapColor(data[i].getIndicator()));
+
+					System.out.println("i = " + i);
+					i++;
+					
+					if(i == 27617) {
+						break;
+					}
+
+				}
 			}
+		} else {
+			System.out.println("can't run because: recordRawData = " + recordRawData);
 		}
-
+		System.out.println("done create array");
 		return data;
 	}
 
 	// B4: gui chuoi json di
 	private static final String url = "http://68.183.238.65:8000/api/data/savedata";
+
 	private void sendResultJSON(String json) throws IOException {
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 		try {
-		    HttpPost request = new HttpPost(url);
-		    StringEntity params = new StringEntity(json.toString());
-		    request.addHeader("content-type", "application/json");
-		    request.setEntity(params);
-		    httpClient.execute(request);
-		// handle response here...
+			HttpPost request = new HttpPost(url);
+			StringEntity params = new StringEntity(json.toString());
+			request.addHeader("content-type", "application/json");
+			request.setEntity(params);
+			httpClient.execute(request);
+			// handle response here...
 		} catch (Exception ex) {
-		    // handle exception here
+			// handle exception here
 		} finally {
-		    httpClient.close();
+			httpClient.close();
 		}
 	}
 
@@ -442,32 +459,42 @@ public class Cells_detail {
 		// B1: tao mang rawData (markers)
 		Marker m = new Marker();
 		String jsonString = m.getJSONDataString();
-		System.out.println(jsonString);
+		System.out.println("data: " + jsonString);
 		int recordRawData = m.getNumberOfReCord(jsonString) * 5;
 		Marker[] rawData = new Marker[recordRawData];
-		rawData = m.createArrayData(jsonString , recordRawData);
-		System.out.println("1");
+		rawData = m.createArrayData(jsonString, recordRawData);
+		System.out.println("step 1");
 
 		// B2: tu mang rawData -> tao ra mang data (cellss_detail)
 		Cells_detail c = new Cells_detail();
 		int recordData = (6 * 13 + 12 * 27 + 24 * 54 + 48 * 108 + 96 * 216);
 		Cells_detail[] data = new Cells_detail[recordData];
-		data = c.createArrayCellsDetail(recordData, rawData, recordRawData, algorithm);
-		System.out.println("2");
+		data = c.createArrayCellsDetail(recordData, rawData, recordRawData, algorithm, jsonString);
+		System.out.println("step 2");
 
 		// B3: Convert mang data thanh chuoi json
-		String resultJSON = c.getResultJSON(data, recordData);
-		System.out.println(resultJSON);
-		System.out.println("3");
-		
+		String resultJSON = "";
+		if(data != null) {
+			resultJSON = c.getResultJSON(data, recordData - 1);
+			System.out.println(resultJSON);
+		} else {
+			System.out.println("can't get json result because: data = null");
+		}
+		System.out.println("step 3");
+
 		// B4: gui chuoi json di
-		c.sendResultJSON(resultJSON);
+		if(resultJSON != "") {
+			c.sendResultJSON(resultJSON);
+		} else {
+			System.out.println("can't send json data because: resultJSON = null");
+		}
+		System.out.println("step 4");
 	}
 
 	public static void main(String[] args) throws IOException {
-		for(int i=1; i<=5; i++) {
-			Cells_detail.runProcess(i);
-		}
-		//Cells_detail.runProcess(0);
+		
+		for(int i=1; i<=5; i++) { Cells_detail.runProcess(i); }
+		 
+		//Cells_detail.runProcess(5);
 	}
 }
