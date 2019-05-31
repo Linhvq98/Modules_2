@@ -202,11 +202,60 @@ public class Cells_detail {
 	}
 
 	// team 2
-	private double useAlgorithm_2(Marker rawData[]) {
-		double indicator = 2;
+	private double useAlgorithm_2(Marker rawData[], int numberRecord) {
+		double indicator = 0, q_den = 0, q_speed = 0, c = 0;
+		double totalSpeed = 0, markerCount = 0;
+		final double w1=0.3, w2=0.7;
 
-		// implement here
+		for (int i = 0; i < numberRecord; i++) {
+			if (rawData[i].getLayer() == this.getId_cell()) {
+				if (rawData[i].getX_axis() == this.getX_axis() && rawData[i].getY_axis() == this.getY_axis()) {
+					if(rawData[i].getVehicle == "Car" ) {						
+						markerCount = markerCount + 2;
+						totalSpeed += 2*rawData[i].getSpeed();
+					} else if (rawData[i].getVehicle == "Motor")
+						markerCount = markerCount + 1;
+						totalSpeed += rawData[i].getSpeed();
+				}
+			}
+		}
 
+		double avgSpeed = (double) totalSpeed / markerCount;
+
+
+		if (markerCount < 20) {
+			q_den = 4;
+		} else if (markerCount >= 20 && markerCount< 50) {
+			q_den = 3;
+		} else if (markerCount>= 50 && markerCount< 100) {
+			q_den = 2;
+		} else {
+			q_den = 1;
+		}
+		return q_den;
+
+		if (avgSpeed < 10) {
+			q_speed = 1;
+		} else if (avgSpeed >= 10 && avgSpeed < 20) {
+			q_speed = 2;
+		} else if (avgSpeed >= 20 && avgSpeed < 30) {
+			q_speed = 3;
+		} else {
+			q-speed = 4;
+		}
+		return q_speed;
+		
+		double c = q_den*w1 + q_speed*w2;
+
+		if (c < 1.5) {
+			indicator = 1;
+		} else if (c >= 1.5 && c < 2.5) {
+			indicator = 2;
+		} else if (c >= 2.5 && c < 3.5) {
+			indicator = 3;
+		} else {
+			indicator = 4;
+		}
 		return indicator;
 	}
 
